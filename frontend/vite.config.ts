@@ -30,8 +30,8 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
         configure: (proxy, _options) => {
           proxy.on('proxyReq', (proxyReq, _req, _res) => {
-            // Add the Resend API key to the proxy request
-            proxyReq.setHeader('Authorization', `Bearer re_EyNh4cnf_KVbXbsGM5nW73kkLfGu2QoNM`);
+            // Add the Resend API key to the proxy request from environment variable
+            proxyReq.setHeader('Authorization', `Bearer ${process.env.VITE_RESEND_API_KEY}`);
           });
         }
       }
