@@ -6,13 +6,16 @@ const packages = [
   {
     id: "01",
     name: "The Classic",
-    duration: "3 Hours",
+    duration: "2 Hours",
     features: [
-      "Open-air photobooth setup",
-      "Unlimited digital prints",
-      "Curated prop collection",
-      "Online gallery access",
-      "1 Studio Attendant",
+      "Open-air studio setup",
+      "Bonus: Audio Guestbook (Limited Time)",
+      "Interactive themed prop collection",
+      "Custom photo layout design",
+      "Live online gallery access",
+      "1 Professional attendant",
+      "Instant SMS & Email delivery",
+      "Venue-to-venue logistics",
     ],
     accent: false,
   },
@@ -21,12 +24,10 @@ const packages = [
     name: "The Luxe",
     duration: "5 Hours",
     features: [
-      "Enclosed premium booth",
-      "Unlimited prints + 4x6 keepsakes",
-      "Bespoke prop set (from Atelier)",
-      "Custom backdrop design",
-      "2 Studio Attendants",
-      "Branded photo strips",
+      "Unlimited premium photo prints",
+      "Bonus: Audio Guestbook (Limited Time)",
+      "Everything in The Classic",
+      "Additional 2 Personalized High-Density Props",
     ],
     accent: true,
   },
@@ -35,12 +36,10 @@ const packages = [
     name: "The Maison",
     duration: "Full Day",
     features: [
-      "Luxury photobooth experience",
-      "Keychain keepsakes",
-      "Custom-engraved props",
-      "Digital gallery access",
-      "2 Studio Attendant",
-      "Venue-to-venue logistics",
+      "Bonus: Acrylic Keychain Booth",
+      "8-Piece custom-designed prop set",
+      "Everything in The Luxe",
+      "2 Professional attendants",
     ],
     accent: false,
   },
@@ -58,7 +57,7 @@ export function Services({ boothPhoto }: ServicesProps) {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-20">
         <div className="flex items-start justify-between flex-wrap gap-8">
           <div>
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-cente r gap-4 mb-6">
               <div className="w-8 h-px bg-[#4A2C2A]" />
               <span
                 style={{ fontFamily: "'Tenor Sans', sans-serif", letterSpacing: "0.3em" }}
