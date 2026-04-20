@@ -145,7 +145,17 @@ export function Booking() {
               {/* Contact Info */}
               <div className="flex flex-col gap-8">
                 {[
-                  { label: "Studio Email", value: "hello@aaeternastudio.ca" },
+                  { 
+                    label: "Studio Email", 
+                    value: (
+                      <a 
+                        href="mailto:shanemelasuncion@gmail.com" 
+                        className="hover:text-[#4A2C2A] transition-colors duration-300"
+                      >
+                        shanemelasuncion@gmail.com
+                      </a>
+                    ) 
+                  },
                   { label: "Location", value: "Edmonton, Alberta" },
                 ].map((item) => (
                   <div key={item.label}>

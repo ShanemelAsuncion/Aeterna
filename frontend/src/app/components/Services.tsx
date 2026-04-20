@@ -22,7 +22,7 @@ const packages = [
   {
     id: "02",
     name: "The Luxe",
-    duration: "5 Hours",
+    duration: "2 Hours",
     features: [
       "Unlimited premium photo prints",
       "Bonus: Audio Guestbook (Limited Time)",
@@ -34,9 +34,9 @@ const packages = [
   {
     id: "03",
     name: "The Maison",
-    duration: "Full Day",
+    duration: "3 Hours",
     features: [
-      "Bonus: Acrylic Keychain Booth",
+      "Bonus: Acrylic Keychain Booth (Limited Time)",
       "8-Piece custom-designed prop set",
       "Everything in The Luxe",
       "2 Professional attendants",
