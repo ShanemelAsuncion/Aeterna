@@ -1,25 +1,6 @@
 import { useState, useEffect } from "react";
 
-type FormData = {
-  name: string;
-  email: string;
-  phone: string;
-  eventDate: string;
-  eventType: string;
-  service: string;
-  message: string;
-};
-
 export function Booking() {
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
-    phone: "",
-    eventDate: "",
-    eventType: "",
-    service: "",
-    message: "",
-  });
   const [submitted, setSubmitted] = useState(false);
 
   // Check for success URL parameter on component mount
@@ -32,66 +13,9 @@ export function Booking() {
       // Reset after 5 seconds
       setTimeout(() => {
         setSubmitted(false);
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          eventDate: "",
-          eventType: "",
-          service: "",
-          message: "",
-        });
       }, 5000);
     }
   }, []);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    // Check honeypot field (spam protection)
-    const botField = (e.target as HTMLFormElement).elements.namedItem('bot-field') as HTMLInputElement;
-    if (botField && botField.value) {
-      // It's a bot, don't submit
-      e.preventDefault();
-      return;
-    }
-
-    // Validate required fields
-    if (!formData.name || !formData.email || !formData.eventDate || !formData.eventType || !formData.service) {
-      e.preventDefault();
-      alert('Please fill in all required fields.');
-      return;
-    }
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      e.preventDefault();
-      alert('Please enter a valid email address.');
-      return;
-    }
-
-    // Let Netlify handle the form submission natively
-    setSubmitted(true);
-    
-    // Reset form after 5 seconds
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        eventDate: "",
-        eventType: "",
-        service: "",
-        message: "",
-      });
-    }, 5000);
-  };
 
   const inputClass = `w-full bg-transparent border-b border-[#F9F8F5]/15 text-[#F9F8F5] py-3 text-sm focus:outline-none focus:border-[#4A2C2A] transition-colors duration-300 placeholder-[#F9F8F5]/20`;
   const labelClass = `block text-[8px] uppercase tracking-[0.25em] text-[#F9F8F5]/40 mb-2`;
@@ -214,7 +138,6 @@ export function Booking() {
                 data-netlify="true"
                 data-netlify-honeypot="bot-field"
                 action="/?success=true"
-                onSubmit={handleSubmit} 
                 className="space-y-6"
               >
                 {/* Hidden honeypot field for spam protection */}
@@ -234,8 +157,6 @@ export function Booking() {
                       name="name"
                       type="text"
                       required
-                      value={formData.name}
-                      onChange={handleChange}
                       placeholder="Your Name"
                       style={{ fontFamily: "'Tenor Sans', sans-serif" }}
                       className={inputClass}
@@ -254,8 +175,6 @@ export function Booking() {
                       name="email"
                       type="email"
                       required
-                      value={formData.email}
-                      onChange={handleChange}
                       placeholder="your@email.com"
                       style={{ fontFamily: "'Tenor Sans', sans-serif" }}
                       className={inputClass}
@@ -276,9 +195,7 @@ export function Booking() {
                       id="phone"
                       name="phone"
                       type="tel"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="XXX XXX XXXX"
+                      placeholder="(optional)"
                       style={{ fontFamily: "'Tenor Sans', sans-serif" }}
                       className={inputClass}
                     />
@@ -296,8 +213,6 @@ export function Booking() {
                       name="eventDate"
                       type="date"
                       required
-                      value={formData.eventDate}
-                      onChange={handleChange}
                       style={{ fontFamily: "'Tenor Sans', sans-serif" }}
                       className={`${inputClass} [color-scheme:dark]`}
                     />
@@ -317,8 +232,6 @@ export function Booking() {
                       id="eventType"
                       name="eventType"
                       required
-                      value={formData.eventType}
-                      onChange={handleChange}
                       style={{ fontFamily: "'Tenor Sans', sans-serif" }}
                       className={`${inputClass} cursor-pointer [&>option]:bg-[#161616]`}
                     >
@@ -342,8 +255,6 @@ export function Booking() {
                       id="service"
                       name="service"
                       required
-                      value={formData.service}
-                      onChange={handleChange}
                       style={{ fontFamily: "'Tenor Sans', sans-serif" }}
                       className={`${inputClass} cursor-pointer [&>option]:bg-[#161616]`}
                     >
@@ -367,11 +278,9 @@ export function Booking() {
                     id="message"
                     name="message"
                     rows={4}
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Share your vision, theme, expected guest count, venue..."
+                    placeholder="Tell us about your vision..."
                     style={{ fontFamily: "'Tenor Sans', sans-serif" }}
-                    className={`${inputClass} resize-none`}
+                    className={inputClass}
                   />
                 </div>
 
