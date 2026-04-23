@@ -52,22 +52,20 @@ export function Booking() {
     }
 
     try {
-      // Submit to Netlify Forms
+      // Get the actual form data from the DOM
       const form = e.target as HTMLFormElement;
       const formData = new FormData(form);
       
-      // Add form data fields
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value) {
-          formData.append(key, value);
-        }
-      });
-
-      // Submit using fetch for better control
+      // Convert FormData to URL-encoded string for Netlify
+      const params = new URLSearchParams(formData as any).toString();
+      
+      // Submit using fetch with proper encoding
       const response = await fetch('/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData as any).toString(),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
       });
 
       if (response.ok) {
@@ -87,12 +85,14 @@ export function Booking() {
           });
         }, 5000);
       } else {
-        alert('There was an error sending your inquiry. Please try again or contact us directly.');
+        // Fallback to native form submission
+        form.submit();
       }
       
     } catch (error) {
       console.error('Form submission error:', error);
-      alert('There was an error sending your inquiry. Please try again or contact us directly.');
+      // Fallback to native form submission
+      (e.target as HTMLFormElement).submit();
     }
   };
 
@@ -350,11 +350,9 @@ export function Booking() {
                       className={`${inputClass} cursor-pointer [&>option]:bg-[#161616]`}
                     >
                       <option value="" disabled>Select Service</option>
-                      <option value="classic">The Classic (3hrs)</option>
-                      <option value="luxe">The Luxe (5hrs)</option>
-                      <option value="maison">The Maison (Full Day)</option>
-                      <option value="atelier">Atelier Props Only</option>
-                      <option value="full">Booth + Atelier Bundle</option>
+                      <option value="classic">The Classic (2 Hours)</option>
+                      <option value="luxe">The Luxe (2 Hours)</option>
+                      <option value="maison">The Maison (3 Hours)</option>
                     </select>
                   </div>
                 </div>
