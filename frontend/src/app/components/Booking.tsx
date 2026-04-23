@@ -1,21 +1,44 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export function Booking() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Check for success URL parameter on component mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-      setSubmitted(true);
-      // Clear the URL parameter
-      window.history.replaceState({}, '', window.location.pathname);
-      // Reset after 5 seconds
-      setTimeout(() => {
-        setSubmitted(false);
-      }, 5000);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    // Convert to URL-encoded for Netlify Forms
+    const params = new URLSearchParams(formData as any).toString();
+
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+        form.reset();
+        setTimeout(() => {
+          setSubmitted(false);
+        }, 5000);
+      } else {
+        alert('There was an error submitting your form. Please try again.');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      alert('There was an error submitting your form. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
-  }, []);
+  };
 
   const inputClass = `w-full bg-transparent border-b border-[#F9F8F5]/15 text-[#F9F8F5] py-3 text-sm focus:outline-none focus:border-[#4A2C2A] transition-colors duration-300 placeholder-[#F9F8F5]/20`;
   const labelClass = `block text-[8px] uppercase tracking-[0.25em] text-[#F9F8F5]/40 mb-2`;
@@ -137,7 +160,7 @@ export function Booking() {
                 method="POST" 
                 data-netlify="true"
                 data-netlify-honeypot="bot-field"
-                action="/?success=true"
+                onSubmit={handleSubmit}
                 className="space-y-6"
               >
                 {/* Hidden honeypot field for spam protection */}
@@ -286,10 +309,11 @@ export function Booking() {
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   style={{ fontFamily: "'Tenor Sans', sans-serif", letterSpacing: "0.25em" }}
-                  className="w-full bg-[#4A2C2A] text-[#F9F8F5] text-[10px] uppercase tracking-[0.25em] py-5 hover:bg-[#F9F8F5] hover:text-[#121212] transition-all duration-300 cursor-pointer mt-2"
+                  className="w-full bg-[#4A2C2A] text-[#F9F8F5] text-[10px] uppercase tracking-[0.25em] py-5 hover:bg-[#F9F8F5] hover:text-[#121212] transition-all duration-300 cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Submit Reservation Request
+                  {isSubmitting ? 'Submitting...' : 'Submit Reservation Request'}
                 </button>
 
                 <p
