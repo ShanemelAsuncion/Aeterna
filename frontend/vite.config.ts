@@ -20,21 +20,4 @@ export default defineConfig({
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 
-  // Server configuration
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://api.resend.com',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-        configure: (proxy, _options) => {
-          proxy.on('proxyReq', (proxyReq, _req, _res) => {
-            // Add the Resend API key to the proxy request from environment variable
-            proxyReq.setHeader('Authorization', `Bearer ${process.env.VITE_RESEND_API_KEY}`);
-          });
-        }
-      }
-    }
-  }
-})
+  })

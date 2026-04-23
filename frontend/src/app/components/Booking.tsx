@@ -30,72 +30,65 @@ export function Booking() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Check honeypot field (spam protection)
+    const botField = (e.target as HTMLFormElement).elements.namedItem('bot-field') as HTMLInputElement;
+    if (botField && botField.value) {
+      // It's a bot, don't submit
+      return;
+    }
+
     // Validate required fields
     if (!formData.name || !formData.email || !formData.eventDate || !formData.eventType || !formData.service) {
       alert('Please fill in all required fields.');
       return;
     }
-    
+
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       alert('Please enter a valid email address.');
       return;
     }
-    
+
     try {
-      // Create email content
-      const emailContent = `
-        <h2>New Booking Inquiry</h2>
-        <p><strong>Name:</strong> ${formData.name}</p>
-        <p><strong>Email:</strong> ${formData.email}</p>
-        <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
-        <p><strong>Event Date:</strong> ${formData.eventDate}</p>
-        <p><strong>Event Type:</strong> ${formData.eventType}</p>
-        <p><strong>Service:</strong> ${formData.service}</p>
-        <p><strong>Message:</strong></p>
-        <p>${formData.message || 'No additional message provided'}</p>
-      `;
+      // Submit to Netlify Forms
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
       
-      // Send email via proxy API
-      const response = await fetch('/api/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'onboarding@resend.dev',
-          to: 'shanemelasuncion@gmail.com',
-          subject: `New Booking Inquiry from ${formData.name}`,
-          html: emailContent,
-        }),
+      // Add form data fields
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) {
+          formData.append(key, value);
+        }
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error('Error sending email:', data);
+
+      // Submit using fetch for better control
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData as any).toString(),
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+        
+        // Reset form after 5 seconds
+        setTimeout(() => {
+          setSubmitted(false);
+          setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            eventDate: "",
+            eventType: "",
+            service: "",
+            message: "",
+          });
+        }, 5000);
+      } else {
         alert('There was an error sending your inquiry. Please try again or contact us directly.');
-        return;
       }
-      
-      console.log('Email sent successfully:', data);
-      setSubmitted(true);
-      
-      // Reset form after 5 seconds
-      setTimeout(() => {
-        setSubmitted(false);
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          eventDate: "",
-          eventType: "",
-          service: "",
-          message: "",
-        });
-      }, 5000);
       
     } catch (error) {
       console.error('Form submission error:', error);
@@ -218,7 +211,17 @@ export function Booking() {
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="p-8 lg:p-12 bg-[#161616] flex flex-col gap-8">
+              <form 
+                name="booking" 
+                method="POST" 
+                data-netlify="true"
+                data-netlify-honeypot="bot-field"
+                onSubmit={handleSubmit} 
+                className="space-y-6"
+              >
+                {/* Hidden honeypot field for spam protection */}
+                <input type="hidden" name="bot-field" />
+                <input type="hidden" name="form-name" value="booking" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div>
                     <label
