@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type FormData = {
   name: string;
@@ -22,24 +22,47 @@ export function Booking() {
   });
   const [submitted, setSubmitted] = useState(false);
 
+  // Check for success URL parameter on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      setSubmitted(true);
+      // Clear the URL parameter
+      window.history.replaceState({}, '', window.location.pathname);
+      // Reset after 5 seconds
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          eventDate: "",
+          eventType: "",
+          service: "",
+          message: "",
+        });
+      }, 5000);
+    }
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = (e: React.FormEvent) => {
     // Check honeypot field (spam protection)
     const botField = (e.target as HTMLFormElement).elements.namedItem('bot-field') as HTMLInputElement;
     if (botField && botField.value) {
       // It's a bot, don't submit
+      e.preventDefault();
       return;
     }
 
     // Validate required fields
     if (!formData.name || !formData.email || !formData.eventDate || !formData.eventType || !formData.service) {
+      e.preventDefault();
       alert('Please fill in all required fields.');
       return;
     }
@@ -47,53 +70,27 @@ export function Booking() {
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
+      e.preventDefault();
       alert('Please enter a valid email address.');
       return;
     }
 
-    try {
-      // Get the actual form data from the DOM
-      const form = e.target as HTMLFormElement;
-      const formData = new FormData(form);
-      
-      // Convert FormData to URL-encoded string for Netlify
-      const params = new URLSearchParams(formData as any).toString();
-      
-      // Submit using fetch with proper encoding
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params,
+    // Let Netlify handle the form submission natively
+    setSubmitted(true);
+    
+    // Reset form after 5 seconds
+    setTimeout(() => {
+      setSubmitted(false);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        eventDate: "",
+        eventType: "",
+        service: "",
+        message: "",
       });
-
-      if (response.ok) {
-        setSubmitted(true);
-        
-        // Reset form after 5 seconds
-        setTimeout(() => {
-          setSubmitted(false);
-          setFormData({
-            name: "",
-            email: "",
-            phone: "",
-            eventDate: "",
-            eventType: "",
-            service: "",
-            message: "",
-          });
-        }, 5000);
-      } else {
-        // Fallback to native form submission
-        form.submit();
-      }
-      
-    } catch (error) {
-      console.error('Form submission error:', error);
-      // Fallback to native form submission
-      (e.target as HTMLFormElement).submit();
-    }
+    }, 5000);
   };
 
   const inputClass = `w-full bg-transparent border-b border-[#F9F8F5]/15 text-[#F9F8F5] py-3 text-sm focus:outline-none focus:border-[#4A2C2A] transition-colors duration-300 placeholder-[#F9F8F5]/20`;
@@ -216,6 +213,7 @@ export function Booking() {
                 method="POST" 
                 data-netlify="true"
                 data-netlify-honeypot="bot-field"
+                action="/?success=true"
                 onSubmit={handleSubmit} 
                 className="space-y-6"
               >
