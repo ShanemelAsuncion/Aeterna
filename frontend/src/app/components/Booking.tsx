@@ -1,8 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+function formatSlotLabel(hhmm: string) {
+  const [h, m] = hhmm.split(":").map(Number);
+  const period = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
+}
 
 export function Booking() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [eventDate, setEventDate] = useState("");
+  const [service, setService] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  useEffect(() => {
+    if (!eventDate || !service) {
+      setAvailableSlots([]);
+      setEventTime("");
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingSlots(true);
+
+    fetch(`/.netlify/functions/availability?date=${eventDate}&service=${service}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+      .then((data) => {
+        if (cancelled) return;
+        const slots: string[] = data.slots || [];
+        setAvailableSlots(slots);
+        setEventTime((current) => (slots.includes(current) ? current : ""));
+      })
+      .catch(() => {
+        if (!cancelled) setAvailableSlots([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSlots(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [eventDate, service]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -10,7 +53,7 @@ export function Booking() {
 
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
-    
+
     // Convert to URL-encoded for Netlify Forms
     const params = new URLSearchParams(formData as any).toString();
 
@@ -26,6 +69,10 @@ export function Booking() {
       if (response.ok) {
         setSubmitted(true);
         form.reset();
+        setEventDate("");
+        setService("");
+        setEventTime("");
+        setAvailableSlots([]);
         setTimeout(() => {
           setSubmitted(false);
         }, 5000);
@@ -236,6 +283,8 @@ export function Booking() {
                       name="eventDate"
                       type="date"
                       required
+                      value={eventDate}
+                      onChange={(e) => setEventDate(e.target.value)}
                       style={{ fontFamily: "'Tenor Sans', sans-serif" }}
                       className={`${inputClass} [color-scheme:dark]`}
                     />
@@ -278,6 +327,8 @@ export function Booking() {
                       id="service"
                       name="service"
                       required
+                      value={service}
+                      onChange={(e) => setService(e.target.value)}
                       style={{ fontFamily: "'Tenor Sans', sans-serif" }}
                       className={`${inputClass} cursor-pointer [&>option]:bg-[#161616]`}
                     >
@@ -287,6 +338,43 @@ export function Booking() {
                       <option value="maison">The Maison (3 Hours)</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="eventTime"
+                    style={{ fontFamily: "'Tenor Sans', sans-serif" }}
+                    className={labelClass}
+                  >
+                    Event Time *
+                  </label>
+                  <select
+                    id="eventTime"
+                    name="eventTime"
+                    required
+                    disabled={!eventDate || !service || loadingSlots}
+                    value={eventTime}
+                    onChange={(e) => setEventTime(e.target.value)}
+                    style={{ fontFamily: "'Tenor Sans', sans-serif" }}
+                    className={`${inputClass} cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 [&>option]:bg-[#161616]`}
+                  >
+                    {!eventDate || !service ? (
+                      <option value="" disabled>Select a date &amp; package first</option>
+                    ) : loadingSlots ? (
+                      <option value="" disabled>Loading available times&hellip;</option>
+                    ) : availableSlots.length === 0 ? (
+                      <option value="" disabled>No available times for this date</option>
+                    ) : (
+                      <>
+                        <option value="" disabled>Select Time</option>
+                        {availableSlots.map((slot) => (
+                          <option key={slot} value={slot}>
+                            {formatSlotLabel(slot)}
+                          </option>
+                        ))}
+                      </>
+                    )}
+                  </select>
                 </div>
 
                 <div>
