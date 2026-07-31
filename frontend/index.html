@@ -8,6 +8,28 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Static form for Netlify's build-time bot to detect and register.
+         Field names must match Booking.tsx exactly; the React form is submitted via fetch. -->
+    <form name="booking" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="tel" name="phone" />
+      <input type="date" name="eventDate" />
+      <select name="eventType">
+        <option value="wedding">Wedding</option>
+        <option value="debut">Debut / 18th Birthday</option>
+        <option value="corporate">Corporate Event</option>
+        <option value="birthday">Birthday Celebration</option>
+        <option value="other">Other</option>
+      </select>
+      <select name="service">
+        <option value="classic">The Classic (2 Hours)</option>
+        <option value="luxe">The Luxe (2 Hours)</option>
+        <option value="maison">The Maison (3 Hours)</option>
+      </select>
+      <textarea name="message"></textarea>
+      <input type="text" name="bot-field" />
+    </form>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
